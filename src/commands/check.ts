@@ -76,7 +76,7 @@ export const exec: CliExecFn = async (argv) => {
       throw new Error("認証に失敗しました");
     }
   } catch (e) {
-    console.log(`shodoアカウントの確認に失敗しました APIルート:${apiRoute}`, e);
+    console.log(`shodoアカウントの確認に失敗しました`, e);
     return;
   }
 };

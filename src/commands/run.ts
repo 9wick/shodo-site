@@ -33,8 +33,6 @@ function parseArgs(argv: string[]) {
         // Types
         "--urlPrefix": String,
         "--help": Boolean,
-        "--apiRoute": String,
-        "--token": String,
 
         //Alias
         "-h": "--help",
@@ -97,7 +95,7 @@ export const exec: CliExecFn = async (argv) => {
       throw new Error("認証に失敗しました");
     }
   } catch (e) {
-    console.log(`shodoアカウントの確認に失敗しました APIルート:${apiRoute}`, e);
+    console.log(`shodoアカウントの確認に失敗しました`, e);
     return;
   }
 
