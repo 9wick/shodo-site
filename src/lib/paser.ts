@@ -1,14 +1,13 @@
-import {Readability} from '@mozilla/readability';
-import type {JSDOM} from "jsdom";
-
+import { Readability } from "@mozilla/readability";
+import type { JSDOM } from "jsdom";
 
 export const parseFromJsdom = (doc: JSDOM) => {
-  let reader = new Readability(doc.window.document);
-  let parsed = reader.parse();
+  const reader = new Readability(doc.window.document);
+  const parsed = reader.parse();
 
   if (parsed) {
-    return {article: parsed.textContent}
+    return { article: parsed.textContent };
   }
 
-  return {article: doc.window.document.textContent ?? ""};
-}
+  return { article: doc.window.document.textContent ?? "" };
+};

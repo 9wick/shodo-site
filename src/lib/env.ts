@@ -1,7 +1,7 @@
-import env from 'env-var';
-import {IsValidUrl} from "./util";
+import env from "env-var";
+import { IsValidUrl } from "./util";
 
-let shodoEnv: { apiRoute: string, token: string } | null = null;
+let shodoEnv: { apiRoute: string; token: string } | null = null;
 
 export const loadShodoEnv = () => {
   if (shodoEnv) {
@@ -13,7 +13,7 @@ export const loadShodoEnv = () => {
   } catch (e) {
     throw new Error("環境変数に SHODO_API_ROUTE が登録されていません");
   }
-  if(!IsValidUrl(apiRoute)){
+  if (!IsValidUrl(apiRoute)) {
     throw new Error(`SHODO_API_ROUTEがURLとして正しくありません:${apiRoute}`);
   }
   try {
@@ -21,7 +21,6 @@ export const loadShodoEnv = () => {
   } catch (e) {
     throw new Error("環境変数に SHODO_TOKEN が登録されていません");
   }
-  shodoEnv = {apiRoute, token};
+  shodoEnv = { apiRoute, token };
   return shodoEnv;
-}
-
+};

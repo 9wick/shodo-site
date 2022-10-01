@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
-import arg from 'arg';
-import {exec} from "./commands";
-
+import arg from "arg";
+import { exec } from "./commands";
 
 const args = arg(
   {},
@@ -10,8 +9,7 @@ const args = arg(
     permissive: true,
   }
 );
-const execCommandName = args._[0] || 'preview';
+const execCommandName = args._[0] || "preview";
 const execCommandArgs = args._.slice(1);
-
 
 exec(execCommandName, execCommandArgs);

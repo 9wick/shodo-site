@@ -1,14 +1,15 @@
 import fetch from "node-fetch-commonjs";
-import {JSDOM} from 'jsdom';
+import { JSDOM } from "jsdom";
 import * as querystring from "querystring";
-import type {PromiseType} from "utility-types";
-import {setTimeout} from 'timers/promises'
-import {createSerialExecutor, SerialExecutor} from "@9wick/serial-executor"
+import type { PromiseType } from "utility-types";
+import { setTimeout } from "timers/promises";
+import { createSerialExecutor, SerialExecutor } from "@9wick/serial-executor";
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const contentTypeParser = require("content-type-parser");
 
 class ContentTypeError extends Error {
-  static mark = Symbol()
+  static mark = Symbol();
   mark = ContentTypeError.mark;
 
   static is(e: any): e is ContentTypeError {
@@ -20,25 +21,24 @@ export const getSiteLinks = async (url: string) => {
   let html;
   let contentType;
   try {
-    const res = await fetch(url, {headers: {'Accept-Language': 'ja-JP'}});
+    const res = await fetch(url, { headers: { "Accept-Language": "ja-JP" } });
     html = await res.text();
-    contentType = res.headers.get('Content-Type');
-
+    contentType = res.headers.get("Content-Type");
   } catch (e) {
     console.warn(`fetching ${url} error`, e);
   }
 
   if (!contentTypeParser(contentType).isText()) {
-    throw new ContentTypeError(`${url} is not html file`)
+    throw new ContentTypeError(`${url} is not html file`);
   }
 
   const doc = new JSDOM(html, {
-    url
+    url,
   });
   const aTagList = doc.window.document.querySelectorAll(`a`);
   const linkList = Array.from(aTagList)
-    .map(e => e.href)
-    .map(href => {
+    .map((e) => e.href)
+    .map((href) => {
       try {
         const u = new URL(href);
         // u.search = "";
@@ -47,18 +47,28 @@ export const getSiteLinks = async (url: string) => {
       } catch (e) {
         return null;
       }
-    }).filter(e => e !== null) as string[];
-  return {url, isHtml: true, linkList, html, doc};
-}
+    })
+    .filter((e) => e !== null) as string[];
+  return { url, isHtml: true, linkList, html, doc };
+};
 
-export const crowle = async (url: string, config: { targetPrefix: string, already?: Set<string>, executor?: SerialExecutor, onFetchBody?: (params: PromiseType<ReturnType<typeof getSiteLinks>>) => Promise<void> }) => {
+export const crowle = async (
+  url: string,
+  config: {
+    targetPrefix: string;
+    already?: Set<string>;
+    executor?: SerialExecutor;
+    onFetchBody?: (
+      params: PromiseType<ReturnType<typeof getSiteLinks>>
+    ) => Promise<void>;
+  }
+) => {
   const already = config.already ?? new Set();
   const executor = config.executor ?? createSerialExecutor();
   if (already.has(url)) {
     return;
   }
   already.add(url);
-
 
   let results;
   try {
@@ -82,9 +92,10 @@ export const crowle = async (url: string, config: { targetPrefix: string, alread
   }
 
   const targetUrlList = results.linkList
-    .filter(u => u.startsWith(config.targetPrefix))
-    .filter(u => !already.has(u));
+    .filter((u) => u.startsWith(config.targetPrefix))
+    .filter((u) => !already.has(u));
 
-  await Promise.all(targetUrlList.map(async (u) => crowle(u, {...config, already, executor})))
-
-}
+  await Promise.all(
+    targetUrlList.map(async (u) => crowle(u, { ...config, already, executor }))
+  );
+};
