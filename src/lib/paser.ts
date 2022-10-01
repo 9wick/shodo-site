@@ -6,9 +6,9 @@ export const parseFromJsdom = (doc: JSDOM) => {
   let reader = new Readability(doc.window.document);
   let parsed = reader.parse();
 
-  if(parsed){
-    return  {article:parsed.textContent}
+  if (parsed) {
+    return {article: parsed.textContent}
   }
 
-  return doc.window.document.textContent ?? "";
+  return {article: doc.window.document.textContent ?? ""};
 }

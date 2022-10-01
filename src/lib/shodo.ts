@@ -1,6 +1,7 @@
 import fetch from "node-fetch-commonjs";
 import {setTimeout} from "timers/promises";
 import clc from "cli-color";
+import type {PromiseType} from "utility-types";
 
 export interface ShodoConfig {
   apiRoute: string,
@@ -73,7 +74,23 @@ export interface ShodoResults {
   "updated": number;
 }
 
+export class ShodoApiError extends Error {
+  static mark = Symbol()
+  mark = ShodoApiError.mark;
+
+  static is(e: any): e is ShodoApiError {
+    return e.mark === ShodoApiError.mark;
+  }
+
+  constructor(public readonly response: PromiseType<ReturnType<typeof fetch>>) {
+    super(`http request to shodo api error`);
+  }
+
+}
+
 export class Shodo {
+
+
   constructor(private config: ShodoConfig) {
   }
 
@@ -92,11 +109,42 @@ export class Shodo {
 
     if (!res.ok) {
       const text = await res.text();
-      throw new Error(`http request to shodo api error: ${text}`);
+      throw new ShodoApiError(res);
     }
     const results = await res.json();
     return results as any;
   }
+
+
+  async isValidAccount() {
+
+    try {
+
+      /**
+       * userコマンドがないため、filesコマンドで代用する
+       */
+      const results = await this.requestToShodo(`files/`, "GET");
+
+      // 成功
+      if (typeof results.count === "number") {
+        return true;
+      }
+
+    } catch (e) {
+
+      // {"detail":"見つかりませんでした"}  botのときに発生? apiは使えるのでokとする
+      if (ShodoApiError.is(e)) {
+        const json: any = await e.response.json(); //textをすでに使ってるのでJSONは使えない
+        if (json.detail && json.detail === "見つかりませんでした") {
+          return true;
+        }
+      }
+    }
+
+    // {"detail":"無効なトークンです"}
+    return false;
+  }
+
 
   public async requestLint(body: string) {
     const results = await this.requestToShodo("lint/", "POST", {body});
@@ -128,7 +176,7 @@ export class Shodo {
     throw new Error("unreachable")
   }
 
-  public convertToReadableTextObj(body: string, messages: ShodoMessage[], {color} = {color: true}) {
+  public convertToReadableObj(body: string, messages: ShodoMessage[], {color} = {color: true}) {
     return messages.map(m => {
       const colorStyle = color ? (m.severity === "error" ? clc.red : clc.yellow) : (s: string) => s;
       const pos = `${m.from.line + 1}:${m.from.ch + 1}`;
@@ -151,7 +199,7 @@ export class Shodo {
   }
 
   public printResults(body: string, messages: ShodoMessage[], {color} = {color: true}) {
-    const data = this.convertToReadableTextObj(body, messages, {color});
+    const data = this.convertToReadableObj(body, messages, {color});
     data.forEach((m) => {
       console.log(`${m.pos} ${m.message}\n    ${m.highlight}`);
     })

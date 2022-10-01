@@ -10,6 +10,10 @@ const contentTypeParser = require("content-type-parser");
 class ContentTypeError extends Error {
   static mark = Symbol()
   mark = ContentTypeError.mark;
+
+  static is(e: any): e is ContentTypeError {
+    return e.mark === ContentTypeError.mark;
+  }
 }
 
 export const getSiteLinks = async (url: string) => {
@@ -59,15 +63,17 @@ export const crowle = async (url: string, config: { targetPrefix: string, alread
   let results;
   try {
     results = await executor.execute(async () => {
+      // console.log("START " + url);
       const r = await getSiteLinks(url);
       if (r.isHtml && config.onFetchBody) {
         await config.onFetchBody(r);
       }
+      // console.log("END " + url);
       await setTimeout(10);
       return r;
     });
   } catch (e: any) {
-    if (e.mark && e.mark === ContentTypeError.mark) {
+    if (ContentTypeError.is(e)) {
       // ignore
       return;
     } else {

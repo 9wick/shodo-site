@@ -2,19 +2,22 @@ import arg from "arg";
 import type {CliExecFn} from "./types";
 import {crowle} from "../lib/crawler";
 import {parseFromJsdom} from "../lib/paser";
+import {IsValidUrl, numberWithCommas} from "../lib/util";
 
 export const helpText = `
 Command:
-  shodo-site list       webサイトをクローリングしてURLリストを出力する
+  shodo-site list        webサイトをクローリングしてURLリストを出力する
 
 Usage:
   npx shodo-site list {entryUrl} [options]
 
+Parameters:
+  entryUrl               クローリングを開始するURL
 
 Options:
-  --urlPrefix             prefixが一致するページのみ本文校正の対象とする(default: entryUrlと同一)
-  --showBody              本文抽出後の文字列を出力する
-  --help, -h              このヘルプを表示
+  --urlPrefix            prefixが一致するページのみ本文校正の対象とする(default: entryUrlと同一)
+  --showBody             本文抽出後の文字列を出力する
+  --help, -h             このヘルプを表示
   
 `
 
@@ -60,19 +63,38 @@ export const exec: CliExecFn = async (argv) => {
   }
 
   const entryUrl = args._[0]!;
-  const targetPrefix = args["--urlPrefix"] ?? entryUrl;
+  if(!IsValidUrl(entryUrl)){
+    console.error(`{entryUrl}がURLとして正しくありません:${entryUrl}`);
+    return;
+  }
+  const urlPrefix = args["--urlPrefix"] ?? entryUrl;
+  if(!IsValidUrl(urlPrefix)){
+    console.error(`[--urlPrefix]がURLとして正しくありません:${urlPrefix}`);
+    return;
+  }
+
   const showBody = args["--showBody"] ?? false;
 
 
+  let textLength = 0;
   await crowle(entryUrl, {
-    targetPrefix, onFetchBody: async ({url, doc}) => {
-      console.log(url);
+    targetPrefix: entryUrl,
+    onFetchBody: async ({url, doc}) => {
+      if (!url.startsWith(urlPrefix)) {
+        return;
+      }
+      const {article} = parseFromJsdom(doc);
+      const length = article.length;
+      textLength += length;
+      console.log(`本文抽出文字数:${numberWithCommas(length).padStart(7)} ${url} `);
       if (showBody) {
-        const body = parseFromJsdom(doc);
-        console.log(body);
+        console.log(article);
       }
     }
-  })
+  });
+
+  console.log(`合計文字数:${numberWithCommas(textLength)}`)
 
 
 };
+
