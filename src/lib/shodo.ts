@@ -108,7 +108,6 @@ export class Shodo {
     });
 
     if (!res.ok) {
-      const text = await res.text();
       throw new ShodoApiError(res);
     }
     const results = await res.json();
