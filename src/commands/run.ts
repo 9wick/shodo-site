@@ -3,7 +3,7 @@ import type { CliExecFn } from "./types";
 import { crowle } from "../lib/crawler";
 import { parseFromJsdom } from "../lib/paser";
 import { IsValidUrl, numberWithCommas } from "../lib/util";
-import { Shodo } from "../lib/shodo";
+import { Shodo } from "@9wick/shodo";
 import { loadShodoEnv } from "../lib/env";
 
 export const helpText = `
@@ -109,7 +109,7 @@ export const exec: CliExecFn = async (argv) => {
       const { article } = parseFromJsdom(doc);
       const length = article.length;
       textLength += length;
-      const messages = await shodo.requestLintWait(article);
+      const messages = await shodo.lintWait(article);
       const data = shodo.convertToReadableObj(article, messages);
       console.log(
         `本文抽出文字数:${numberWithCommas(length).padStart(7)} ${url} `

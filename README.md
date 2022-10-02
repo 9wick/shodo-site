@@ -3,6 +3,8 @@
 webサイトをクローリングしながら、日本語校正APIにかけるCLIツールです。
 利用には[ShodoのAPI](https://blog.shodo.ink/entry/2022/05/18/161818)のトークンが必要です
 
+**このツールは対象のサーバーに1request/10msの頻度でGETリクエストを要求します。必ず使用者の管理するサーバーを対象として利用ください**
+
 ```text
   shodo-site run               webサイトをクローリングして本文校正を行う  
   shodo-site list              webサイトをクローリングして対象のURLリストを出力する

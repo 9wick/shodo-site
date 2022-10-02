@@ -9,7 +9,7 @@
   "scripts": {
     "build": "rm -rf ./dist && tsc",
     "test": "ts-node ./bin/test.ts",
-    "version": "npm run build",
+    "version": "npm run lint-fix && npm run build",
     "lint-fix": "eslint --fix './src/**/*.{js,ts}' && prettier --write './src/**/*.{js,ts}'"
   },
   "repository": {
@@ -20,8 +20,13 @@
     "dist",
     "src"
   ],
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "shodo",
+    "textlint",
+    "lint",
+    "japanese"
+  ],
+  "author": "kido <kido@9wick.com> (https://github.com/9wick)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/9wick/shodo-site/issues"
@@ -29,6 +34,7 @@
   "homepage": "https://github.com/9wick/shodo-site#readme",
   "dependencies": {
     "@9wick/serial-executor": "^1.0.0",
+    "@9wick/shodo": "^0.1.1",
     "@mozilla/readability": "^0.4.2",
     "arg": "^5.0.2",
     "cli-color": "^2.0.3",

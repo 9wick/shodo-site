@@ -3,8 +3,8 @@ import type { CliExecFn } from "./types";
 import { crowle } from "../lib/crawler";
 import { parseFromJsdom } from "../lib/paser";
 import { IsValidUrl, numberWithCommas } from "../lib/util";
-import { Shodo } from "../lib/shodo";
 import { loadShodoEnv } from "../lib/env";
+import {Shodo} from "@9wick/shodo";
 
 export const helpText = `
 Command:
